@@ -405,6 +405,17 @@ else:
             self.thread.start()
 
         def _thread_run(self, **kwargs):
+            # temporary fix added by farzad to keep the thread running if OSError happens like: OSError: [Errno 19] No such device
+            # https://github.com/osensa/osensa-dashboard/issues/136
+            while True:
+                try:
+                    Logger.info('Initializing provider thread ...')
+                    self._run_thread(**kwargs)
+                except OSError as e:
+                    Logger.exception('Unexpected error happened in hidinput thread.')
+
+
+        def _run_thread(self, **kwargs):
             input_fn = kwargs.get('input_fn')
             queue = self.queue
             dispatch_queue = self.dispatch_queue
